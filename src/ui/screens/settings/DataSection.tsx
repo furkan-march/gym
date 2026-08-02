@@ -8,7 +8,13 @@ import {
   previewBackup,
   type BackupPreview,
 } from '../../../lib/backup/backup'
-import { workoutHistoryCsv } from '../../../lib/backup/csv'
+import {
+  bodyMetricsCsv,
+  cardioSessionsCsv,
+  dailyStepsCsv,
+  exerciseHistoryCsv,
+  workoutHistoryCsv,
+} from '../../../lib/backup/csv'
 import {
   backupReminderDue,
   exportFile,
@@ -51,7 +57,14 @@ const CSV_OUTCOME_TEXT: Record<Exclude<ExportOutcome, 'failed'>, string> = {
   clipboard: 'CSV copied to the clipboard — paste it into a file to keep it.',
 }
 
-type Busy = 'backup' | 'csv' | 'import' | 'demo' | 'reset' | null
+type CsvBusy = 'csv' | 'bodyCsv' | 'stepsCsv' | 'cardioCsv' | 'exerciseCsv'
+
+type Busy = 'backup' | CsvBusy | 'import' | 'demo' | 'reset' | null
+
+/** Rows kept unless demo data is deliberately included. */
+type DemoFilter = <T extends { isDemo?: boolean }>(rows: T[]) => T[]
+
+type CsvResult = { kind: 'csv'; filename: string; csv: string } | { kind: 'empty'; text: string }
 
 function errText(err: unknown): string {
   return err instanceof Error ? err.message : String(err)
@@ -128,29 +141,21 @@ export function DataSection({ settings }: { settings: AppSettings }) {
     }
   }
 
-  const runExportCsv = async () => {
-    setBusy('csv')
+  // Shared flow for all CSV exports (SPEC 30 + V2 item 3): demo filtering,
+  // empty-data message, share-sheet export and outcome reporting.
+  const runCsvFlow = async (key: CsvBusy, produce: (keep: DemoFilter) => Promise<CsvResult>) => {
+    setBusy(key)
     setStatus(null)
     try {
       const includeDemo = settings.demoDataEnabled === true
-      const [sessions, exerciseSessions, sets] = await Promise.all([
-        db.workoutSessions.toArray(),
-        db.exerciseSessions.toArray(),
-        db.setLogs.toArray(),
-      ])
-      const keep = <T extends { isDemo?: boolean }>(rows: T[]): T[] =>
+      const keep: DemoFilter = (rows) =>
         includeDemo ? rows : rows.filter((r) => r.isDemo !== true)
-      const completed = keep(sessions).filter((s) => s.status === 'completed')
-      if (completed.length === 0) {
-        setStatus({ kind: 'ok', text: 'No completed workouts yet — nothing to export.' })
+      const result = await produce(keep)
+      if (result.kind === 'empty') {
+        setStatus({ kind: 'ok', text: result.text })
         return
       }
-      const csv = workoutHistoryCsv(completed, keep(exerciseSessions), keep(sets))
-      const outcome = await exportFile(
-        `gym-workouts-${toDateKey(new Date())}.csv`,
-        'text/csv',
-        csv,
-      )
+      const outcome = await exportFile(result.filename, 'text/csv', result.csv)
       if (outcome === 'failed') {
         setStatus({ kind: 'error', text: 'Export did not complete — no CSV was saved.' })
       } else {
@@ -162,6 +167,81 @@ export function DataSection({ settings }: { settings: AppSettings }) {
       setBusy(null)
     }
   }
+
+  const runExportCsv = () =>
+    runCsvFlow('csv', async (keep) => {
+      const [sessions, exerciseSessions, sets] = await Promise.all([
+        db.workoutSessions.toArray(),
+        db.exerciseSessions.toArray(),
+        db.setLogs.toArray(),
+      ])
+      const completed = keep(sessions).filter((s) => s.status === 'completed')
+      if (completed.length === 0) {
+        return { kind: 'empty', text: 'No completed workouts yet — nothing to export.' }
+      }
+      return {
+        kind: 'csv',
+        filename: `gym-workouts-${toDateKey(new Date())}.csv`,
+        csv: workoutHistoryCsv(completed, keep(exerciseSessions), keep(sets)),
+      }
+    })
+
+  const runExportBodyMetricsCsv = () =>
+    runCsvFlow('bodyCsv', async (keep) => {
+      const metrics = keep(await db.bodyMetrics.toArray())
+      if (metrics.length === 0) {
+        return { kind: 'empty', text: 'No body metrics yet — nothing to export.' }
+      }
+      return {
+        kind: 'csv',
+        filename: `gym-body-metrics-${toDateKey(new Date())}.csv`,
+        csv: bodyMetricsCsv(metrics),
+      }
+    })
+
+  const runExportStepsCsv = () =>
+    runCsvFlow('stepsCsv', async (keep) => {
+      const activities = keep(await db.dailyActivities.toArray())
+      if (!activities.some((a) => a.steps != null)) {
+        return { kind: 'empty', text: 'No step counts yet — nothing to export.' }
+      }
+      return {
+        kind: 'csv',
+        filename: `gym-steps-${toDateKey(new Date())}.csv`,
+        csv: dailyStepsCsv(activities),
+      }
+    })
+
+  const runExportCardioCsv = () =>
+    runCsvFlow('cardioCsv', async (keep) => {
+      const cardio = keep(await db.cardioSessions.toArray())
+      if (cardio.length === 0) {
+        return { kind: 'empty', text: 'No cardio sessions yet — nothing to export.' }
+      }
+      return {
+        kind: 'csv',
+        filename: `gym-cardio-${toDateKey(new Date())}.csv`,
+        csv: cardioSessionsCsv(cardio),
+      }
+    })
+
+  const runExportExerciseHistoryCsv = () =>
+    runCsvFlow('exerciseCsv', async (keep) => {
+      const [sessions, exerciseSessions, sets] = await Promise.all([
+        db.workoutSessions.toArray(),
+        db.exerciseSessions.toArray(),
+        db.setLogs.toArray(),
+      ])
+      const completed = keep(sessions).filter((s) => s.status === 'completed')
+      if (completed.length === 0) {
+        return { kind: 'empty', text: 'No completed workouts yet — nothing to export.' }
+      }
+      return {
+        kind: 'csv',
+        filename: `gym-exercise-history-${toDateKey(new Date())}.csv`,
+        csv: exerciseHistoryCsv(keep(exerciseSessions), keep(sets), completed),
+      }
+    })
 
   // --- import (SPEC 30 replace strategy, SPEC 33 error states) ------------
 
@@ -352,6 +432,36 @@ export function DataSection({ settings }: { settings: AppSettings }) {
             onClick={() => void runExportCsv()}
             left={<span className="text-[15px]">Export workout CSV</span>}
             right={<span className="text-[14px] text-text-muted">{busy === 'csv' ? '…' : '›'}</span>}
+          />
+          <Row
+            onClick={() => void runExportBodyMetricsCsv()}
+            left={<span className="text-[15px]">Body metrics CSV</span>}
+            right={
+              <span className="text-[14px] text-text-muted">{busy === 'bodyCsv' ? '…' : '›'}</span>
+            }
+          />
+          <Row
+            onClick={() => void runExportStepsCsv()}
+            left={<span className="text-[15px]">Steps CSV</span>}
+            right={
+              <span className="text-[14px] text-text-muted">{busy === 'stepsCsv' ? '…' : '›'}</span>
+            }
+          />
+          <Row
+            onClick={() => void runExportCardioCsv()}
+            left={<span className="text-[15px]">Cardio CSV</span>}
+            right={
+              <span className="text-[14px] text-text-muted">{busy === 'cardioCsv' ? '…' : '›'}</span>
+            }
+          />
+          <Row
+            onClick={() => void runExportExerciseHistoryCsv()}
+            left={<span className="text-[15px]">Exercise history CSV</span>}
+            right={
+              <span className="text-[14px] text-text-muted">
+                {busy === 'exerciseCsv' ? '…' : '›'}
+              </span>
+            }
           />
           <Row
             left={<span className="text-[15px]">Last backup</span>}

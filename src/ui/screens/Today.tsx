@@ -23,6 +23,8 @@ import { MetricStrip } from './today/MetricStrip'
 import { NutritionCard } from './today/NutritionCard'
 import { PostureChecklist } from './today/PostureChecklist'
 import { ReadinessSheet, type ReadinessValues } from './today/ReadinessSheet'
+import { SupplementsCard } from './today/SupplementsCard'
+import { Zone2SuggestionCard } from './today/Zone2SuggestionCard'
 import { usePostureToday } from './today/usePostureToday'
 
 /**
@@ -440,6 +442,10 @@ export default function TodayScreen() {
 
       {/* 6. Compact metric strip */}
       <MetricStrip todayKey={todayKey} stepsOptional={plan.stepsOptional} />
+
+      {/* V2 below-the-fold cards: optional second Zone 2 + supplement checklist */}
+      <Zone2SuggestionCard todayKey={todayKey} />
+      <SupplementsCard todayKey={todayKey} />
 
       {/* 7. Weekly strength adherence + nutrition quick log */}
       <SectionTitle>This week</SectionTitle>

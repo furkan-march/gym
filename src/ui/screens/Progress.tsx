@@ -4,7 +4,9 @@ import { SectionTitle } from '../components/core'
 import { useNow } from '../hooks/useNow'
 import { useProfile, useSettings } from '../hooks/useSettings'
 import { CardioChart, StepsChart } from './progress/ActivityCharts'
+import { LiftingAdherenceChart, PostureAdherenceChart } from './progress/AdherenceCharts'
 import { BodyWeightChart, WaistChart } from './progress/BodyCharts'
+import { BodyFatChart } from './progress/BodyFatChart'
 import { CheckInSection } from './progress/CheckInSection'
 import { RecordsSection } from './progress/RecordsSection'
 import { StallSection } from './progress/StallSection'
@@ -12,11 +14,12 @@ import { StatTiles } from './progress/StatTiles'
 import { E1rmChart, VolumeChart } from './progress/StrengthCharts'
 
 /**
- * Progress screen (SPEC 19/20/21/22/24): weekly check-in entry point, stat
- * tiles, exactly six separate responsive charts, personal records and
- * progression status. Adherence and the body-fat estimate are tiles, not
- * charts; every chart has a useful empty state (SPEC 33). Demo rows are
- * excluded unless demo mode is enabled (SPEC 34).
+ * Progress screen (SPEC 19/20/21/22/24, 39 item 5): weekly check-in entry
+ * point, stat tiles, separate responsive charts, personal records and
+ * progression status. The V1 stat tiles stay; V2 adds a body-fat trend chart
+ * and weekly lifting/posture adherence charts under Consistency. Every chart
+ * has a useful empty state (SPEC 33). Demo rows are excluded unless demo mode
+ * is enabled (SPEC 34).
  */
 export default function ProgressScreen() {
   const settings = useSettings()
@@ -57,6 +60,7 @@ function ProgressBody({
       <SectionTitle>Body</SectionTitle>
       <BodyWeightChart includeDemo={includeDemo} />
       <WaistChart includeDemo={includeDemo} />
+      <BodyFatChart includeDemo={includeDemo} />
 
       <SectionTitle>Strength</SectionTitle>
       <E1rmChart includeDemo={includeDemo} />
@@ -69,6 +73,20 @@ function ProgressBody({
         todayKey={todayKey}
       />
       <CardioChart includeDemo={includeDemo} weekStartsOn={settings.weekStartsOn} />
+
+      <SectionTitle>Consistency</SectionTitle>
+      <LiftingAdherenceChart
+        includeDemo={includeDemo}
+        weekStartsOn={settings.weekStartsOn}
+        programStart={profile.programStartDateKey}
+        todayKey={todayKey}
+      />
+      <PostureAdherenceChart
+        includeDemo={includeDemo}
+        weekStartsOn={settings.weekStartsOn}
+        programStart={profile.programStartDateKey}
+        todayKey={todayKey}
+      />
 
       <RecordsSection includeDemo={includeDemo} />
 

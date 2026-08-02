@@ -84,7 +84,46 @@ describe('ProgressScreen', () => {
     // Waist chart renders too (two waist entries exist).
     expect(await screen.findByText('Waist')).toBeInTheDocument()
 
+    // Body-fat chart (V2): only one bodyFatPct entry -> empty state.
+    expect(await screen.findByText('Not enough body-fat entries yet')).toBeInTheDocument()
+
     // Personal records empty state (no workouts logged yet, SPEC 33).
     expect(await screen.findByText('No personal records yet')).toBeInTheDocument()
+  })
+
+  it('shows adherence-chart empty states while the program is fresh', async () => {
+    // Program started today: every fully completed week predates it, so both
+    // Consistency charts (V2) fall back to their empty states.
+    await db.userProfile.update('profile', { programStartDateKey: todayKey })
+
+    render(
+      <MemoryRouter>
+        <ProgressScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText('Consistency')).toBeInTheDocument()
+    expect(await screen.findAllByText('Not enough completed weeks yet')).toHaveLength(2)
+  })
+
+  it('renders body-fat and weekly adherence charts once history exists', async () => {
+    // Four weeks into the program: at least two fully completed weeks exist
+    // for both adherence charts (scheduled strength days and required posture
+    // days come from the seed defaults).
+    await db.userProfile.update('profile', { programStartDateKey: addDaysKey(todayKey, -28) })
+    // A second body-fat estimate makes the trend chartable.
+    await db.bodyMetrics.update('bm-test-1', { bodyFatPct: 18.2 })
+
+    render(
+      <MemoryRouter>
+        <ProgressScreen />
+      </MemoryRouter>,
+    )
+
+    // Chart subtitles only render in the non-empty branch.
+    expect(await screen.findByText('% · estimate')).toBeInTheDocument()
+    expect(await screen.findAllByText('% · week starting')).toHaveLength(2)
+    expect(screen.queryByText('Not enough completed weeks yet')).not.toBeInTheDocument()
+    expect(screen.queryByText('Not enough body-fat entries yet')).not.toBeInTheDocument()
   })
 })

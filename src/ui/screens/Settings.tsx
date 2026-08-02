@@ -7,6 +7,7 @@ import { Card, EmptyState, Row, SectionTitle } from '../components/core'
 import { updateSettings } from '../hooks/useSettings'
 import { DataSection } from './settings/DataSection'
 import { ProfileSection } from './settings/ProfileSection'
+import { SupplementsSection } from './settings/SupplementsSection'
 import { Toggle } from './settings/Toggle'
 import { TrainingSection } from './settings/TrainingSection'
 
@@ -197,6 +198,7 @@ export default function SettingsScreen() {
       <DisplaySection settings={settings} />
       <FeedbackSection settings={settings} />
       <ActivityNutritionSection settings={settings} />
+      <SupplementsSection settings={settings} />
       <DataSection settings={settings} />
       <AboutSection />
     </div>

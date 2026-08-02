@@ -41,7 +41,8 @@ describe('PlanScreen', () => {
     // Nutrition: carbs derived from (2450 − 185×4 − 75×9) ÷ 4 = 259 g (SPEC 23).
     await userEvent.click(screen.getByRole('button', { name: 'Nutrition' }))
     expect(await screen.findByText(/= 259 g/)).toBeInTheDocument()
-    expect(await screen.findByDisplayValue('Breakfast')).toBeInTheDocument()
+    // V2: meals render as tappable cards (title as text) instead of inline inputs.
+    expect(await screen.findByRole('button', { name: /Breakfast/ })).toBeInTheDocument()
   })
 
   it('restoreDefaultProgram reproduces the seeded program and keeps custom templates', async () => {
