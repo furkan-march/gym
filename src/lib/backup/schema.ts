@@ -354,6 +354,23 @@ export const personalRecordSchema = z.looseObject({
   createdAt: timestamp,
 })
 
+export const supplementItemSchema = z.looseObject({
+  id,
+  name: z.string(),
+  reminderNote: z.string().nullable(),
+  orderIndex: z.number(),
+  createdAt: timestamp,
+  updatedAt: timestamp,
+})
+
+export const supplementLogSchema = z.looseObject({
+  id,
+  dateKey,
+  takenItemIds: z.array(id),
+  createdAt: timestamp,
+  updatedAt: timestamp,
+})
+
 /** Keys mirror BACKUP_TABLES in db.ts exactly (Active/RestTimer state excluded). */
 export const backupDataSchema = z.looseObject({
   userProfile: z.array(userProfileSchema),
@@ -379,6 +396,9 @@ export const backupDataSchema = z.looseObject({
   weeklyCheckIns: z.array(weeklyCheckInSchema),
   progressionResponses: z.array(progressionResponseSchema),
   personalRecords: z.array(personalRecordSchema),
+  // V2 tables — .default([]) keeps schema-version-1 backups importable.
+  supplementItems: z.array(supplementItemSchema).default([]),
+  supplementLogs: z.array(supplementLogSchema).default([]),
 })
 
 export const appBackupSchema = z.looseObject({

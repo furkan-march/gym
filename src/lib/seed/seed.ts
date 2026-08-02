@@ -1,5 +1,6 @@
 import { db } from '../db'
 import { nowIso } from '../ids'
+import { SUPPLEMENT_SEED } from './supplements'
 import type {
   AppSettings,
   Exercise,
@@ -128,37 +129,37 @@ interface TexSeed {
 
 // SPEC 8 — Upper A (Tuesday)
 const UPPER_A: TexSeed[] = [
-  { id: 'tex-ua-1', exerciseId: EX.benchPress, sets: 4, repMin: 6, repMax: 8, rirMin: 1, rirMax: 2, rest: 150, ramp: [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }] },
-  { id: 'tex-ua-2', exerciseId: EX.pullUp, sets: 4, repMin: 6, repMax: 10, rirMin: 1, rirMax: 2, rest: 150, ramp: [{ pct: 0, reps: 5 }] },
-  { id: 'tex-ua-3', exerciseId: EX.inclineDbPress, sets: 3, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120 },
-  { id: 'tex-ua-4', exerciseId: EX.chestSupportedRow, sets: 3, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120 },
-  { id: 'tex-ua-5', exerciseId: EX.lateralRaise, sets: 3, repMin: 12, repMax: 15, rirMin: 1, rirMax: 2, rest: 70, superset: 'ua-s1' },
-  { id: 'tex-ua-6', exerciseId: EX.facePull, sets: 3, repMin: 12, repMax: 15, rirMin: 2, rirMax: 2, rest: 70, superset: 'ua-s1' },
+  { id: 'tex-ua-1', exerciseId: EX.benchPress, sets: 3, repMin: 6, repMax: 8, rirMin: 1, rirMax: 2, rest: 150, ramp: [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }] },
+  { id: 'tex-ua-2', exerciseId: EX.pullUp, sets: 3, repMin: 6, repMax: 10, rirMin: 1, rirMax: 2, rest: 150, ramp: [{ pct: 0, reps: 5 }] },
+  { id: 'tex-ua-3', exerciseId: EX.inclineDbPress, sets: 2, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120 },
+  { id: 'tex-ua-4', exerciseId: EX.chestSupportedRow, sets: 2, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120 },
+  { id: 'tex-ua-5', exerciseId: EX.lateralRaise, sets: 2, repMin: 12, repMax: 15, rirMin: 1, rirMax: 2, rest: 70, superset: 'ua-s1' },
+  { id: 'tex-ua-6', exerciseId: EX.facePull, sets: 2, repMin: 12, repMax: 15, rirMin: 2, rirMax: 2, rest: 70, superset: 'ua-s1' },
   { id: 'tex-ua-7', exerciseId: EX.ropePushdown, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 70, superset: 'ua-s2' },
   { id: 'tex-ua-8', exerciseId: EX.dumbbellCurl, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 70, superset: 'ua-s2' },
 ]
 
 // SPEC 8 — Upper B (Thursday)
 const UPPER_B: TexSeed[] = [
-  { id: 'tex-ub-1', exerciseId: EX.overheadPress, sets: 4, repMin: 6, repMax: 8, rirMin: 1, rirMax: 2, rest: 150, ramp: [{ pct: 0.5, reps: 8 }, { pct: 0.75, reps: 4 }], defaultVariantId: OHP_VARIANTS.barbell },
-  { id: 'tex-ub-2', exerciseId: EX.chestSupportedRow, sets: 4, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120, alternatives: [EX.cableRow] },
-  { id: 'tex-ub-3', exerciseId: EX.inclineMachinePress, sets: 3, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120, alternatives: [EX.weightedDip] },
-  { id: 'tex-ub-4', exerciseId: EX.latPulldown, sets: 3, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120 },
-  { id: 'tex-ub-5', exerciseId: EX.rearDeltFly, sets: 3, repMin: 12, repMax: 15, rirMin: 2, rirMax: 2, rest: 70, superset: 'ub-s1' },
-  { id: 'tex-ub-6', exerciseId: EX.cableYRaise, sets: 3, repMin: 12, repMax: 15, rirMin: 2, rirMax: 2, rest: 70, superset: 'ub-s1' },
+  { id: 'tex-ub-1', exerciseId: EX.overheadPress, sets: 3, repMin: 6, repMax: 8, rirMin: 1, rirMax: 2, rest: 150, ramp: [{ pct: 0.5, reps: 8 }, { pct: 0.75, reps: 4 }], defaultVariantId: OHP_VARIANTS.barbell },
+  { id: 'tex-ub-2', exerciseId: EX.chestSupportedRow, sets: 3, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120, alternatives: [EX.cableRow] },
+  { id: 'tex-ub-3', exerciseId: EX.inclineMachinePress, sets: 2, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120, alternatives: [EX.weightedDip] },
+  { id: 'tex-ub-4', exerciseId: EX.latPulldown, sets: 2, repMin: 8, repMax: 10, rirMin: 1, rirMax: 2, rest: 120 },
+  { id: 'tex-ub-5', exerciseId: EX.rearDeltFly, sets: 2, repMin: 12, repMax: 15, rirMin: 2, rirMax: 2, rest: 70, superset: 'ub-s1' },
+  { id: 'tex-ub-6', exerciseId: EX.cableYRaise, sets: 2, repMin: 12, repMax: 15, rirMin: 2, rirMax: 2, rest: 70, superset: 'ub-s1' },
   { id: 'tex-ub-7', exerciseId: EX.hammerCurl, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 70, superset: 'ub-s2' },
   { id: 'tex-ub-8', exerciseId: EX.overheadRopeExt, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 70, superset: 'ub-s2' },
 ]
 
 // SPEC 8 — Lower / Legs (Sunday)
 const LOWER: TexSeed[] = [
-  { id: 'tex-lo-1', exerciseId: EX.squat, sets: 4, repMin: 6, repMax: 8, rirMin: 1, rirMax: 2, rest: 180, alternatives: [EX.hackSquat, EX.legPress, EX.boxSquat, EX.gobletSquat], ramp: [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }] },
+  { id: 'tex-lo-1', exerciseId: EX.squat, sets: 3, repMin: 6, repMax: 8, rirMin: 1, rirMax: 2, rest: 180, alternatives: [EX.hackSquat, EX.legPress, EX.boxSquat, EX.gobletSquat], ramp: [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }] },
   { id: 'tex-lo-2', exerciseId: EX.romanianDeadlift, sets: 3, repMin: 6, repMax: 8, rirMin: 1, rirMax: 2, rest: 150, ramp: [{ pct: 0.6, reps: 6 }] },
   { id: 'tex-lo-3', exerciseId: EX.bulgarianSplitSquat, sets: 2, repMin: 8, repMax: 10, rirMin: 2, rirMax: 3, rest: 105, alternatives: [EX.reverseLunge, EX.stepUp, EX.singleLegPress] },
-  { id: 'tex-lo-4', exerciseId: EX.legCurl, sets: 3, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 80 },
-  { id: 'tex-lo-5', exerciseId: EX.standingCalfRaise, sets: 3, repMin: 10, repMax: 15, rirMin: 1, rirMax: 2, rest: 70, superset: 'lo-s1' },
-  { id: 'tex-lo-6', exerciseId: EX.pallofPress, sets: 3, repMin: 10, repMax: 12, rirMin: 2, rirMax: 2, rest: 50, optional: true, superset: 'lo-s1' },
-  { id: 'tex-lo-7', exerciseId: EX.hangingKneeRaise, sets: 3, repMin: 10, repMax: 15, rirMin: 1, rirMax: 2, rest: 60, optional: true, alternatives: [EX.hangingLegRaise] },
+  { id: 'tex-lo-4', exerciseId: EX.legCurl, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 80 },
+  { id: 'tex-lo-5', exerciseId: EX.standingCalfRaise, sets: 2, repMin: 10, repMax: 15, rirMin: 1, rirMax: 2, rest: 70, superset: 'lo-s1' },
+  { id: 'tex-lo-6', exerciseId: EX.pallofPress, sets: 2, repMin: 10, repMax: 12, rirMin: 2, rirMax: 2, rest: 50, optional: true, superset: 'lo-s1' },
+  { id: 'tex-lo-7', exerciseId: EX.hangingKneeRaise, sets: 2, repMin: 10, repMax: 15, rirMin: 1, rirMax: 2, rest: 60, optional: true, alternatives: [EX.hangingLegRaise] },
 ]
 
 // SPEC 9 — warm-up checklists (general + day-specific optional preparation)
@@ -324,6 +325,7 @@ export async function seedDefaults(): Promise<void> {
     zone2MinutesMin: 30,
     zone2MinutesMax: 40,
     nutrition: { calories, proteinG, fatG, carbsG },
+    supplementsEnabled: false,
     lastBackupAt: null,
     demoDataEnabled: false,
     updatedAt: t,
@@ -349,6 +351,7 @@ export async function seedDefaults(): Promise<void> {
       db.scheduledDays,
       db.postureRoutineTemplates,
       db.mealTemplates,
+      db.supplementItems,
     ],
     async () => {
       await db.userProfile.add(profile)
@@ -360,6 +363,9 @@ export async function seedDefaults(): Promise<void> {
       await db.scheduledDays.bulkAdd(scheduledDays)
       await db.postureRoutineTemplates.add(posture)
       await db.mealTemplates.bulkAdd(meals)
+      await db.supplementItems.bulkAdd(
+        SUPPLEMENT_SEED.map((x, i) => ({ ...x, orderIndex: i, createdAt: t, updatedAt: t })),
+      )
     },
   )
 }

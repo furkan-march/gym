@@ -35,7 +35,7 @@ describe('ActiveWorkoutScreen', () => {
     expect(await screen.findByText(/No history yet/)).toBeInTheDocument()
     // Row creation is sequential; wait until all four rows exist.
     await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: 'Complete set' })).toHaveLength(4)
+      expect(screen.getAllByRole('button', { name: 'Complete set' })).toHaveLength(3)
     })
     const checks = screen.getAllByRole('button', { name: 'Complete set' })
 
@@ -66,7 +66,7 @@ describe('ActiveWorkoutScreen', () => {
       await screen.findByRole('button', { name: 'Add 30 seconds' }),
     ).toBeInTheDocument()
 
-    // …and the sticky bar reflects progress (Upper A = 24 working sets).
-    expect(await screen.findByText(/1 done · 23 left/)).toBeInTheDocument()
+    // …and the sticky bar reflects progress (Upper A = 18 working sets).
+    expect(await screen.findByText(/1 done · 17 left/)).toBeInTheDocument()
   })
 })

@@ -157,7 +157,11 @@ export async function importBackup(
           await db.table(t).clear()
         }
         for (const t of BACKUP_TABLES) {
-          const rows = backup.data[t]
+          // Migrate schema-version-1 rows forward: V2 settings fields default off.
+          const rows =
+            t === 'appSettings'
+              ? backup.data[t].map((r) => ({ ...r, supplementsEnabled: r.supplementsEnabled ?? false }))
+              : backup.data[t]
           counts[t] = rows.length
           if (rows.length > 0) {
             await db.table(t).bulkAdd(rows)

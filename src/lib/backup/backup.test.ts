@@ -129,6 +129,7 @@ function makeSettings(): AppSettings {
     zone2MinutesMin: 30,
     zone2MinutesMax: 45,
     nutrition: { calories: 2200, proteinG: 180, fatG: 70, carbsG: 212.5 },
+    supplementsEnabled: false,
     lastBackupAt: null,
     demoDataEnabled: false,
     updatedAt: T,
@@ -202,6 +203,8 @@ function emptyData(): AppBackup['data'] {
     weeklyCheckIns: [],
     progressionResponses: [],
     personalRecords: [],
+    supplementItems: [],
+    supplementLogs: [],
   }
 }
 
@@ -377,7 +380,7 @@ describe('previewBackup', () => {
     expect(preview.summary.find((s) => s.table === 'exercises')?.count).toBe(1)
     expect(preview.summary.find((s) => s.table === 'setLogs')?.count).toBe(1)
     expect(preview.summary.find((s) => s.table === 'bodyMetrics')?.count).toBe(0)
-    expect(preview.summary).toHaveLength(23)
+    expect(preview.summary).toHaveLength(25)
   })
 
   it('reports validation errors', () => {

@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import { SUPPLEMENT_SEED } from './seed/supplements'
 import type {
   ActiveWorkoutState,
   AppSettings,
@@ -20,6 +21,8 @@ import type {
   ScheduledDay,
   SessionFeedback,
   SetLog,
+  SupplementItem,
+  SupplementLog,
   TemplateExercise,
   UserProfile,
   WeeklyCheckIn,
@@ -57,6 +60,8 @@ export class GymDB extends Dexie {
   weeklyCheckIns!: EntityTable<WeeklyCheckIn, 'id'>
   progressionResponses!: EntityTable<ProgressionResponse, 'id'>
   personalRecords!: EntityTable<PersonalRecord, 'id'>
+  supplementItems!: EntityTable<SupplementItem, 'id'>
+  supplementLogs!: EntityTable<SupplementLog, 'id'>
 
   constructor(name = 'gym') {
     super(name)
@@ -89,6 +94,31 @@ export class GymDB extends Dexie {
       progressionResponses: 'id, exerciseId, sourceSessionId',
       personalRecords: 'id, exerciseId, kind, [exerciseId+kind], workoutSessionId',
     })
+
+    // V2: supplement checklist tables. Existing installs get the settings flag
+    // patched and the default (disabled) checklist seeded; V1 data is untouched.
+    this.version(2)
+      .stores({
+        supplementItems: 'id, orderIndex',
+        supplementLogs: 'id, &dateKey',
+      })
+      .upgrade(async (tx) => {
+        const t = new Date().toISOString()
+        await tx
+          .table('appSettings')
+          .toCollection()
+          .modify((s: { supplementsEnabled?: boolean }) => {
+            if (s.supplementsEnabled === undefined) s.supplementsEnabled = false
+          })
+        const existing = await tx.table('supplementItems').count()
+        if (existing === 0) {
+          await tx
+            .table('supplementItems')
+            .bulkAdd(
+              SUPPLEMENT_SEED.map((x, i) => ({ ...x, orderIndex: i, createdAt: t, updatedAt: t })),
+            )
+        }
+      })
   }
 }
 
@@ -119,7 +149,9 @@ export const BACKUP_TABLES = [
   'weeklyCheckIns',
   'progressionResponses',
   'personalRecords',
+  'supplementItems',
+  'supplementLogs',
 ] as const
 
-export const BACKUP_SCHEMA_VERSION = 1
-export const APP_VERSION = '1.0.0'
+export const BACKUP_SCHEMA_VERSION = 2
+export const APP_VERSION = '2.0.0'

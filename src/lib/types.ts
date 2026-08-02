@@ -395,14 +395,48 @@ export interface NutritionAdherenceLog {
   updatedAt: Timestamp
 }
 
-/** V1: simple editable text entries (SPEC 23). Table kept for the V2 editor. */
+/**
+ * Meal template. V1 rows are plain text; the V2 editor adds OPTIONAL structured
+ * fields — absent on old rows, so both shapes stay valid without migration.
+ */
 export interface MealTemplate {
   id: string
   title: string
   text: string
   lactoseAlternative?: string
   orderIndex: number
+  /** V2: optional ingredient lines shown as a checklist-style list */
+  items?: string[]
+  /** V2: optional rough per-meal estimates; never authoritative */
+  macros?: {
+    kcal: number | null
+    proteinG: number | null
+    fatG: number | null
+    carbsG: number | null
+  }
   isDemo?: boolean
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+// ---------------------------------------------------------------------------
+// Supplements (V2 — optional checklist, disabled by default, no medical claims)
+// ---------------------------------------------------------------------------
+
+export interface SupplementItem {
+  id: string
+  name: string
+  /** free-text reminder; only the seeded creatine row carries one by default */
+  reminderNote: string | null
+  orderIndex: number
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface SupplementLog {
+  id: string
+  dateKey: DateKey // unique
+  takenItemIds: string[]
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -487,6 +521,8 @@ export interface AppSettings {
   zone2MinutesMin: number
   zone2MinutesMax: number
   nutrition: NutritionTargets
+  /** V2: master toggle for the supplement checklist (off by default) */
+  supplementsEnabled: boolean
   /** ISO timestamp of the last successful backup export; null = never */
   lastBackupAt: Timestamp | null
   demoDataEnabled: boolean
@@ -577,5 +613,7 @@ export interface AppBackup {
     weeklyCheckIns: WeeklyCheckIn[]
     progressionResponses: ProgressionResponse[]
     personalRecords: PersonalRecord[]
+    supplementItems: SupplementItem[]
+    supplementLogs: SupplementLog[]
   }
 }
