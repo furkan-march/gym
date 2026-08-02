@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gym-preview",
+      "runtimeExecutable": "/Users/furkanusak/.local/node/bin/node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "preview", "--port", "4173", "--strictPort"],
+      "port": 4173
+    },
+    {
+      "name": "gym-dev",
+      "runtimeExecutable": "/Users/furkanusak/.local/node/bin/node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "5173", "--strictPort"],
+      "port": 5173
+    }
+  ]
+}

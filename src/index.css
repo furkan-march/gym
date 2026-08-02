@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+/* Design tokens (SPEC 32): dark charcoal, off-white text, one restrained accent. */
+@theme {
+  --color-bg: #111315;
+  --color-surface: #1a1d20;
+  --color-surface-2: #22262a;
+  --color-border: #2e3338;
+  --color-text: #f2f2f0;
+  --color-text-muted: #9aa1a8;
+  --color-accent: #4cc38a;
+  --color-accent-dim: #2c7a58;
+  --color-danger: #e5654e;
+  --color-warning: #d9a444;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* Form controls don't inherit color from body in all engines — make it explicit
+   so numeric values are never invisible on the dark background. */
+input,
+textarea,
+select {
+  color: var(--color-text);
+}
+
+/* iPhone safe areas */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Strong numeric legibility for loads/reps/timers */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

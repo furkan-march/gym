@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dev-dist/
+*.local
+.DS_Store
+
+# Personal spec documents — kept out of git until repo visibility is settled
+SPEC.md
+CHANGES.md
