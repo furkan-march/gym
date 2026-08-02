@@ -80,8 +80,10 @@ function ResumeBar() {
 }
 
 function TabLayout() {
+  // h-dvh (not min-h): the shell is exactly viewport-high so <main> scrolls
+  // internally and the tab bar stays pinned and always visible.
   return (
-    <div className="pt-safe flex min-h-dvh flex-col">
+    <div className="pt-safe flex h-dvh flex-col">
       <UpdateBanner />
       <main className="flex-1 overflow-y-auto px-4 pb-4">
         <Outlet />
