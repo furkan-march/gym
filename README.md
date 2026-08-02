@@ -21,7 +21,17 @@ npm run preview    # serve the production build locally
 
 Node 22 LTS or newer is required.
 
-## Deploying to Vercel
+## Current deployment
+
+Live at **https://furkan-march.github.io/gym/** (GitHub Pages, `gh-pages` branch).
+
+To redeploy after changes:
+
+```bash
+npm run deploy
+```
+
+## Alternative: deploying to Vercel
 
 1. Push this folder to a Git repository (GitHub/GitLab).
 2. In Vercel: **Add New Project** → import the repo.
