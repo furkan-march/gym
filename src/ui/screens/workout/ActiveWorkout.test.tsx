@@ -24,8 +24,8 @@ describe('ActiveWorkoutScreen', () => {
       </MemoryRouter>,
     )
 
-    // Bench Press is first with incomplete sets → auto-expanded card.
-    const bench = await screen.findAllByText('Bench Press')
+    // Dumbbell Bench Press is first with incomplete sets → auto-expanded card.
+    const bench = await screen.findAllByText('Dumbbell Bench Press')
     expect(bench.length).toBeGreaterThan(0)
     // Other template exercises render collapsed.
     expect(await screen.findByText('Pull-Up')).toBeInTheDocument()

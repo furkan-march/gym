@@ -155,8 +155,8 @@ describe('loadDemoData', () => {
       expect(session?.dateKey).toBe(p.dateKey)
     }
     const bench = prs.find((p) => p.kind === 'heaviestLoad')
-    expect(bench?.exerciseId).toBe(EX.benchPress)
-    expect(bench?.value).toBe(65)
+    expect(bench?.exerciseId).toBe(EX.dbBenchPress)
+    expect(bench?.value).toBe(34) // per-dumbbell load, top of the demo plan
   })
 
   it('shapes a fatigue warning: Overhead Press same load, reps declining over 3 sessions', async () => {
@@ -197,7 +197,7 @@ describe('loadDemoData', () => {
     }
     // Ramp sets exist and are excluded from working sets (bench: 3 per session).
     const benchWarmups = (
-      await db.setLogs.where('exerciseId').equals(EX.benchPress).toArray()
+      await db.setLogs.where('exerciseId').equals(EX.dbBenchPress).toArray()
     ).filter((s) => s.isWarmup)
     expect(benchWarmups).toHaveLength(12)
     expect(benchWarmups.every((s) => s.rir === null)).toBe(true)

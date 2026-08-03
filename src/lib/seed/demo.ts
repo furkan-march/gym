@@ -102,6 +102,14 @@ const LOADS: Record<string, readonly [number, number, number, number]> = {
   [EX.overheadRopeExt]: [20, 20, 22.5, 22.5],
   [EX.squat]: [70, 72.5, 75, 77.5],
   [EX.romanianDeadlift]: [80, 82.5, 85, 87.5],
+  // Building-gym defaults (2026-08-03 program revision)
+  [EX.dbBenchPress]: [30, 32, 32, 34], // per dumbbell
+  [EX.smithSquat]: [60, 62.5, 65, 67.5],
+  [EX.smithInclinePress]: [35, 37.5, 40, 40],
+  [EX.dbRomanianDeadlift]: [28, 30, 32, 32], // per dumbbell
+  [EX.dbLegCurl]: [12, 12, 14, 14],
+  [EX.cableRow]: [50, 52.5, 52.5, 55],
+  [EX.hipThrust]: [40, 42.5, 45, 45],
   [EX.bulgarianSplitSquat]: [10, 10, 12, 12], // per dumbbell, per side
   [EX.legCurl]: [35, 37.5, 37.5, 40],
   [EX.standingCalfRaise]: [50, 50, 55, 55],
@@ -195,9 +203,13 @@ function buildStrengthSession(
     if (!exercise) throw new Error(`Demo data: exercise ${tex.exerciseId} is not seeded`)
 
     const variant = tex.defaultVariantId ? lookups.variantsById.get(tex.defaultVariantId) : undefined
+    // SPEC 34 machine-context example: the same row exercise on two machines
+    // (Hammer weeks 0-1, plate-loaded weeks 2-3 — Upper B's row is a cable row
+    // since the 2026-08-03 building-gym revision, so both contexts live on
+    // Upper A's chest-supported row).
     const equipmentContextId =
       tex.exerciseId === EX.chestSupportedRow
-        ? template.kind === 'upperA'
+        ? week < 2
           ? DEMO_CONTEXT_IDS.rowHammer
           : DEMO_CONTEXT_IDS.rowPlate
         : null
@@ -214,7 +226,7 @@ function buildStrengthSession(
       const isRepsOnly = exercise.kind === 'repsOnly'
       let workingLoad: number | null = null
       if (!isBodyweight && !isRepsOnly) {
-        if (template.kind === 'upperB' && tex.exerciseId === EX.chestSupportedRow) {
+        if (tex.exerciseId === EX.chestSupportedRow && week >= 2) {
           workingLoad = pick(ROW_PLATE_LOADS, week)
         } else {
           const plan = LOADS[tex.exerciseId]
@@ -416,13 +428,13 @@ function buildPersonalRecords(out: DemoBatch): void {
   let squatBest: SetLog | null = null
   let squatBestE1rm = 0
   for (const s of working) {
-    if (s.exerciseId === EX.benchPress && s.loadKg != null) {
+    if (s.exerciseId === EX.dbBenchPress && s.loadKg != null) {
       if (benchBest?.loadKg == null || s.loadKg >= benchBest.loadKg) benchBest = s
     }
     if (s.exerciseId === EX.pullUp && s.reps != null) {
       if (pullupBest?.reps == null || s.reps > pullupBest.reps) pullupBest = s
     }
-    if (s.exerciseId === EX.squat && s.loadKg != null && s.reps != null && s.reps <= 12) {
+    if (s.exerciseId === EX.smithSquat && s.loadKg != null && s.reps != null && s.reps <= 12) {
       const e = epley(s.loadKg, s.reps)
       if (e > squatBestE1rm) {
         squatBestE1rm = e

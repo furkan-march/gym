@@ -74,9 +74,9 @@ describe('core loop integration (SPEC 35/36)', () => {
     expect(exerciseSessions.length).toBeGreaterThanOrEqual(7)
 
     // 2. Log and complete squat sets (4 x 6 @ 80 kg, RIR 2).
-    const squatEs = exerciseSessions.find((e) => e.exerciseId === EX.squat)
+    const squatEs = exerciseSessions.find((e) => e.exerciseId === EX.smithSquat)
     expect(squatEs).toBeDefined()
-    await completeAllSets(squatEs!.id, EX.squat, 80, 6, 2)
+    await completeAllSets(squatEs!.id, EX.smithSquat, 80, 6, 2)
 
     // 3. Save & exit freezes the session; it is resumable afterwards.
     await saveAndExit(session.id)
@@ -109,7 +109,7 @@ describe('core loop integration (SPEC 35/36)', () => {
     const history: ComparableSessionInput[] = [
       { session: done!, exerciseSession: doneEs.find((e) => e.id === squatEs!.id)!, sets: setLogs, feedback: null },
     ]
-    const squat = await getExercise(EX.squat)
+    const squat = await getExercise(EX.smithSquat)
     const rec = recommend({
       exercise: squat,
       templateExercise: null,
@@ -143,14 +143,14 @@ describe('core loop integration (SPEC 35/36)', () => {
     await upsertBodyMetric('2026-08-01', { weightKg: 87 })
     const lower = await getTemplate(TEMPLATE_IDS.lower)
     const { session, exerciseSessions } = await startWorkout(lower)
-    const squatEs = exerciseSessions.find((e) => e.exerciseId === EX.squat)!
-    await completeAllSets(squatEs.id, EX.squat, 80, 8, 2) // 4x8 = top of range
+    const squatEs = exerciseSessions.find((e) => e.exerciseId === EX.smithSquat)!
+    await completeAllSets(squatEs.id, EX.smithSquat, 80, 8, 2) // 4x8 = top of range
     await finishWorkout(session.id)
 
     const done = await db.workoutSessions.get(session.id)
     const doneEs = await db.exerciseSessions.get(squatEs.id)
     const sets = await db.setLogs.where('workoutSessionId').equals(session.id).toArray()
-    const squat = await getExercise(EX.squat)
+    const squat = await getExercise(EX.smithSquat)
     const rec = recommend({
       exercise: squat,
       templateExercise: null,
