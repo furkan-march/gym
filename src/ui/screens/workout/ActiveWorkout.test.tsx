@@ -14,7 +14,7 @@ beforeEach(async () => {
 
 describe('ActiveWorkoutScreen', () => {
   it('renders the active session, lazily creates set rows, and one tap completes a set', async () => {
-    const template = await db.workoutTemplates.get(TEMPLATE_IDS.upperA)
+    const template = await db.workoutTemplates.get(TEMPLATE_IDS.pushA)
     expect(template).toBeDefined()
     const { session } = await startWorkout(template!)
 
@@ -28,7 +28,7 @@ describe('ActiveWorkoutScreen', () => {
     const bench = await screen.findAllByText('Dumbbell Bench Press')
     expect(bench.length).toBeGreaterThan(0)
     // Other template exercises render collapsed.
-    expect(await screen.findByText('Pull-Up')).toBeInTheDocument()
+    expect(await screen.findByText('Lateral Raise')).toBeInTheDocument()
 
     // First session: no history → hint shown, no ramp rows (load unknown),
     // exactly the 4 prescribed working rows are created lazily.
@@ -66,7 +66,7 @@ describe('ActiveWorkoutScreen', () => {
       await screen.findByRole('button', { name: 'Add 30 seconds' }),
     ).toBeInTheDocument()
 
-    // …and the sticky bar reflects progress (Upper A = 18 working sets).
-    expect(await screen.findByText(/1 done · 17 left/)).toBeInTheDocument()
+    // …and the sticky bar reflects progress (Push A = 7 working sets).
+    expect(await screen.findByText(/1 done · 6 left/)).toBeInTheDocument()
   })
 })

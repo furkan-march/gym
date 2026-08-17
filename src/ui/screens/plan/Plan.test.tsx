@@ -34,9 +34,9 @@ describe('PlanScreen', () => {
     )
 
     // Training (default section): template list shows the seeded templates.
-    expect((await screen.findAllByText('Upper A')).length).toBeGreaterThan(0)
-    expect((await screen.findAllByText('Upper B')).length).toBeGreaterThan(0)
-    expect((await screen.findAllByText('Lower / Legs')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('Push A')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('Pull A')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('Legs B')).length).toBeGreaterThan(0)
 
     // Nutrition: carbs derived from (2450 − 185×4 − 75×9) ÷ 4 = 259 g (SPEC 23).
     await userEvent.click(screen.getByRole('button', { name: 'Nutrition' }))

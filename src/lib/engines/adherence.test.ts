@@ -1,4 +1,3 @@
-import { TEMPLATE_IDS } from '../seed/seed'
 import type {
   DateKey,
   ExerciseSession,
@@ -10,6 +9,10 @@ import type {
   WorkoutSession,
 } from '../types'
 import { isSessionCompleted, weeklyStrengthAdherence } from './adherence'
+
+// Local fixture ids: these tests exercise the ENGINE with a 3-day scenario;
+// they are intentionally decoupled from the live seeded program.
+const TEMPLATE_IDS = { upperA: 'tpl-fix-upper-a', upperB: 'tpl-fix-upper-b', lower: 'tpl-fix-lower' } as const
 
 /** Fixed dates only (SPEC 35): 2026-08-02 is a Sunday, program start. */
 

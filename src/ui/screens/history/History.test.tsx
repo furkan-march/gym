@@ -7,7 +7,7 @@ import type { ExerciseSession, SetLog, WorkoutSession } from '../../../lib/types
 import HistoryScreen from '../History'
 
 /**
- * Smoke test: one completed Upper A session with three completed bench sets
+ * Smoke test: one completed Push A session with three completed bench sets
  * (60 kg × 8) renders as a history card showing the template name and the
  * total valid volume (60 × 8 × 3 = 1,440 kg).
  */
@@ -19,8 +19,8 @@ const ES_ID = 'es-history-test'
 function makeSession(): WorkoutSession {
   return {
     id: SESSION_ID,
-    templateId: TEMPLATE_IDS.upperA,
-    templateName: 'Upper A',
+    templateId: TEMPLATE_IDS.pushA,
+    templateName: 'Push A',
     templateKind: 'upperA',
     dateKey: '2026-07-28',
     startedAt: T,
@@ -110,7 +110,7 @@ describe('HistoryScreen', () => {
     )
 
     // Template name on the session card (may also appear as a filter chip).
-    const titles = await screen.findAllByText('Upper A')
+    const titles = await screen.findAllByText('Push A')
     expect(titles.length).toBeGreaterThanOrEqual(1)
 
     // 3 completed working sets × 60 kg × 8 reps = 1,440 kg valid volume.

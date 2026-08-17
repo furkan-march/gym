@@ -9,7 +9,7 @@ import type { SetLog, WorkoutSession } from '../../../lib/types'
 import HistoryScreen from '../History'
 
 /**
- * Calendar tab (SPEC 39, V2 item 1): one completed Upper A session dated today
+ * Calendar tab (SPEC 39, V2 item 1): one completed Push A session dated today
  * appears in the current-month grid; tapping the day opens the summary sheet
  * with the template name and completed working-set count.
  */
@@ -22,8 +22,8 @@ const SESSION_ID = 'ws-calendar-test'
 function makeSession(): WorkoutSession {
   return {
     id: SESSION_ID,
-    templateId: TEMPLATE_IDS.upperA,
-    templateName: 'Upper A',
+    templateId: TEMPLATE_IDS.pushA,
+    templateName: 'Push A',
     templateKind: 'upperA',
     dateKey: TODAY_KEY,
     startedAt: T,
@@ -88,7 +88,7 @@ describe('CalendarTab', () => {
     // Today's cell carries an accessible full-date label; tapping it opens the
     // read-only summary sheet with the workout name and completed set count.
     fireEvent.click(await screen.findByRole('button', { name: format(NOW, 'd MMMM yyyy') }))
-    expect(await screen.findByText('Upper A')).toBeInTheDocument()
+    expect(await screen.findByText('Push A')).toBeInTheDocument()
     expect(await screen.findByText('2 sets')).toBeInTheDocument()
   })
 })

@@ -66,12 +66,12 @@ describe('core loop integration (SPEC 35/36)', () => {
   it('start -> log -> save&exit -> resume -> finish -> History -> recommendation -> backup', async () => {
     await upsertBodyMetric('2026-08-01', { weightKg: 87 })
 
-    // 1. Start the scheduled workout (Sunday = Lower/Legs).
-    const lower = await getTemplate(TEMPLATE_IDS.lower)
+    // 1. Start the Legs A workout (Wednesday in the 6-day schedule).
+    const lower = await getTemplate(TEMPLATE_IDS.legsA)
     const { session, exerciseSessions } = await startWorkout(lower)
     expect(session.templateKind).toBe('lower')
     expect(session.bodyweightAtSessionKg).toBe(87) // snapshot, SPEC 15/29
-    expect(exerciseSessions.length).toBeGreaterThanOrEqual(7)
+    expect(exerciseSessions.length).toBe(3)
 
     // 2. Log and complete squat sets (4 x 6 @ 80 kg, RIR 2).
     const squatEs = exerciseSessions.find((e) => e.exerciseId === EX.smithSquat)
@@ -102,7 +102,7 @@ describe('core loop integration (SPEC 35/36)', () => {
         <HistoryScreen />
       </MemoryRouter>,
     )
-    expect(await screen.findByText(/Lower \/ Legs/)).toBeInTheDocument()
+    expect(await screen.findByText(/Legs A/)).toBeInTheDocument()
 
     // 6. Next-session recommendation from the comparable session explains itself.
     const setLogs = await db.setLogs.where('workoutSessionId').equals(session.id).toArray()
@@ -131,17 +131,18 @@ describe('core loop integration (SPEC 35/36)', () => {
   })
 
   it('choosing another workout starts any template without touching the schedule', async () => {
-    const upperA = await getTemplate(TEMPLATE_IDS.upperA)
+    const upperA = await getTemplate(TEMPLATE_IDS.pushA)
     const { session } = await startWorkout(upperA)
-    expect(session.templateName).toBe('Upper A')
+    expect(session.templateName).toBe('Push A')
     const days = await db.scheduledDays.toArray()
-    // Sunday still points at Lower — starting Upper A off-schedule changed nothing.
-    expect(days.find((d) => d.weekday === 0)?.templateId).toBe(TEMPLATE_IDS.lower)
+    // Monday still points at Push A and Sunday stays rest — off-schedule starts change nothing.
+    expect(days.find((d) => d.weekday === 1)?.templateId).toBe(TEMPLATE_IDS.pushA)
+    expect(days.find((d) => d.weekday === 0)?.planKind).toBe('rest')
   })
 
   it('top-of-range squat session earns a load-increase recommendation', async () => {
     await upsertBodyMetric('2026-08-01', { weightKg: 87 })
-    const lower = await getTemplate(TEMPLATE_IDS.lower)
+    const lower = await getTemplate(TEMPLATE_IDS.legsA)
     const { session, exerciseSessions } = await startWorkout(lower)
     const squatEs = exerciseSessions.find((e) => e.exerciseId === EX.smithSquat)!
     await completeAllSets(squatEs.id, EX.smithSquat, 80, 8, 2) // 4x8 = top of range

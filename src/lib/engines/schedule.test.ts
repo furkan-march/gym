@@ -1,4 +1,3 @@
-import { TEMPLATE_IDS } from '../seed/seed'
 import type {
   DateKey,
   PlanKind,
@@ -8,6 +7,10 @@ import type {
   WorkoutTemplate,
 } from '../types'
 import { describePlan, findMissedWorkout, getPlanForDate, weekDateKeys } from './schedule'
+
+// Local fixture ids: these tests exercise the ENGINE with a 3-day scenario;
+// they are intentionally decoupled from the live seeded program.
+const TEMPLATE_IDS = { upperA: 'tpl-fix-upper-a', upperB: 'tpl-fix-upper-b', lower: 'tpl-fix-lower' } as const
 
 /**
  * SPEC 35 SCHEDULING: all tests use fixed dates, never the real current date.

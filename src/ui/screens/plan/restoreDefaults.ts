@@ -1,4 +1,5 @@
 import { db } from '../../../lib/db'
+import { LEGACY_TEMPLATE_IDS } from '../../../lib/seed/seed'
 import { DEFAULT_TEMPLATE_ID_LIST, buildDefaultProgram } from './defaultProgram'
 
 /**
@@ -21,6 +22,9 @@ export async function restoreDefaultProgram(): Promise<void> {
     'rw',
     [db.exercises, db.exerciseVariants, db.workoutTemplates, db.templateExercises, db.scheduledDays],
     async () => {
+      // Retire pre-revision default templates (history keeps its own snapshots).
+      await db.templateExercises.where('templateId').anyOf([...LEGACY_TEMPLATE_IDS]).delete()
+      await db.workoutTemplates.bulkDelete([...LEGACY_TEMPLATE_IDS])
       await db.templateExercises.where('templateId').anyOf(DEFAULT_TEMPLATE_ID_LIST).delete()
       await db.exercises.bulkPut(exercises)
       await db.exerciseVariants.bulkPut(variants)

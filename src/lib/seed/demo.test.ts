@@ -32,20 +32,20 @@ describe('loadDemoData', () => {
   it('creates four weeks of schedule-following history strictly before today', async () => {
     await loadDemoData(db, TODAY)
     const sessions = await db.workoutSessions.toArray()
-    expect(sessions).toHaveLength(12) // 4 Sundays + 4 Tuesdays + 4 Thursdays
+    expect(sessions).toHaveLength(24) // 4 weeks x 6 training days (Sunday rest)
     for (const s of sessions) {
       expect(s.dateKey < TODAY).toBe(true)
       expect(s.dateKey >= addDaysKey(TODAY, -28)).toBe(true)
       expect(s.status).toBe('completed')
       const weekday = weekdayOfKey(s.dateKey)
-      if (weekday === 0) expect(s.templateKind).toBe('lower')
-      if (weekday === 2) expect(s.templateKind).toBe('upperA')
-      if (weekday === 4) expect(s.templateKind).toBe('upperB')
-      expect([0, 2, 4]).toContain(weekday)
+      if (weekday === 1 || weekday === 4) expect(s.templateKind).toBe('upperA') // Push
+      if (weekday === 2 || weekday === 5) expect(s.templateKind).toBe('upperB') // Pull
+      if (weekday === 3 || weekday === 6) expect(s.templateKind).toBe('lower') // Legs
+      expect([1, 2, 3, 4, 5, 6]).toContain(weekday)
     }
     // Full prescription snapshots on every exercise session.
     const exSessions = await db.exerciseSessions.toArray()
-    expect(exSessions).toHaveLength(4 * 8 + 4 * 8 + 4 * 7)
+    expect(exSessions).toHaveLength(24 * 3) // 3 exercises per 30-minute block
     for (const es of exSessions) {
       expect(es.prescription.prescribedSets).toBeGreaterThan(0)
       expect(es.prescription.incrementKg).toBeGreaterThanOrEqual(0)
@@ -118,13 +118,12 @@ describe('loadDemoData', () => {
       expect(d.steps).toBeLessThanOrEqual(11500)
     }
     const cardio = await db.cardioSessions.toArray()
-    expect(cardio).toHaveLength(8) // 4 Wednesdays + 4 Saturdays
+    expect(cardio).toHaveLength(12) // per week: Mon easy run, Wed bike, Fri tempo run
     const zone2 = cardio.filter((c) => c.isZone2)
-    expect(zone2).toHaveLength(4)
-    for (const c of zone2) {
-      expect(weekdayOfKey(c.dateKey)).toBe(3)
-      expect(c.minutes).toBeGreaterThanOrEqual(30)
-      expect(c.minutes).toBeLessThanOrEqual(40)
+    expect(zone2).toHaveLength(8) // Mon + Wed; Friday tempo is a quality run
+    for (const c of cardio) {
+      expect([1, 3, 5]).toContain(weekdayOfKey(c.dateKey))
+      expect(c.minutes).toBe(20)
     }
   })
 
@@ -284,8 +283,8 @@ describe('clearDemoData', () => {
 
     // Seeded (non-demo) library and plan survive.
     expect(await db.exercises.count()).toBeGreaterThan(30)
-    expect(await db.workoutTemplates.count()).toBe(3)
-    expect(await db.templateExercises.count()).toBe(23)
+    expect(await db.workoutTemplates.count()).toBe(6)
+    expect(await db.templateExercises.count()).toBe(18) // 6 templates x 3 exercises
     expect(await db.userProfile.get('profile')).toBeDefined()
   })
 

@@ -54,8 +54,9 @@ describe('TodayScreen', () => {
 
     await user.click(await screen.findByText('Choose another workout'))
 
-    expect(await screen.findByText('Upper A')).toBeInTheDocument()
-    expect(screen.getByText('Upper B')).toBeInTheDocument()
-    expect(screen.getByText('Lower / Legs')).toBeInTheDocument()
+    // Today's heading may repeat one template name, so assert presence, not uniqueness.
+    for (const name of ['Push A', 'Pull A', 'Legs A', 'Push B', 'Pull B', 'Legs B']) {
+      expect((await screen.findAllByText(name)).length).toBeGreaterThan(0)
+    }
   })
 })

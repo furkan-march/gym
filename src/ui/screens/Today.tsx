@@ -54,7 +54,8 @@ function readDismissedMissed(): DateKey[] {
 
 /** SPEC 7: the Lower template's day is titled "Legs". */
 function templateDisplayName(template: WorkoutTemplate): string {
-  return template.kind === 'lower' ? 'Legs' : template.name
+  // With two legs days (A/B) the template name is the clearer heading.
+  return template.name
 }
 
 const STORAGE_WRITE_ERROR = 'Could not save — the on-device storage write failed. Try again.'
@@ -333,17 +334,26 @@ export default function TodayScreen() {
         )
       ) : null}
 
-      {plan.planKind === 'zone2' ? (
+      {plan.planKind === 'zone2' || plan.cardioMinutesMin != null ? (
         <Card>
-          <div className="text-[15px] font-medium">Zone 2 cardio</div>
-          <div className="mt-0.5 text-[13px] text-text-muted">
-            {plan.cardioMinutesMin ?? 30}–{plan.cardioMinutesMax ?? 40} min target · easy,
-            conversational pace
+          <div className="flex items-baseline justify-between">
+            <div className="text-[15px] font-medium">
+              {plan.planKind === 'zone2' ? 'Zone 2 cardio' : 'Morning cardio'}
+            </div>
+            {loggedCardioMinutes > 0 ? (
+              <div className="tabular text-[13px] text-accent">{loggedCardioMinutes} min logged</div>
+            ) : null}
           </div>
-          {loggedCardioMinutes > 0 ? (
-            <div className="tabular mt-2 text-[14px]">Logged today: {loggedCardioMinutes} min</div>
-          ) : null}
-          <Button variant="primary" className="mt-3 w-full" onClick={() => setCardioOpen(true)}>
+          <div className="mt-0.5 text-[13px] text-text-muted">
+            {plan.planKind === 'zone2'
+              ? `${plan.cardioMinutesMin ?? 30}–${plan.cardioMinutesMax ?? 40} min target · easy, conversational pace`
+              : `${plan.cardioMinutesMin ?? 20} min before lifting · run or bike, easy unless it's a quality day`}
+          </div>
+          <Button
+            variant={plan.planKind === 'zone2' ? 'primary' : 'secondary'}
+            className="mt-3 w-full"
+            onClick={() => setCardioOpen(true)}
+          >
             Log cardio
           </Button>
         </Card>

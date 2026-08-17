@@ -119,12 +119,13 @@ const LOADS: Record<string, readonly [number, number, number, number]> = {
 /** Upper B logs the same row exercise on a different machine (context demo). */
 const ROW_PLATE_LOADS: readonly [number, number, number, number] = [55, 57.5, 60, 60]
 
-/** Same 40 kg every week, total reps 30 -> 30 -> 28 -> 26: fatigue shape. */
+/** Same 40 kg every week, total reps 16 -> 15 -> 14 -> 13: fatigue shape
+ * (Push A prescribes 2 OHP sets in the 6-day program). */
 const OHP_REPS: readonly (readonly number[])[] = [
-  [8, 8, 7, 7],
-  [8, 8, 7, 7],
-  [7, 7, 7, 7],
-  [7, 7, 6, 6],
+  [8, 8],
+  [8, 7],
+  [7, 7],
+  [7, 6],
 ]
 
 /** Bodyweight pull-up rep progression (best set 9 from week 2). */
@@ -155,7 +156,14 @@ interface SeedLookups {
 }
 
 async function readSeedLookups(db: GymDB): Promise<SeedLookups> {
-  const templateIds = [TEMPLATE_IDS.lower, TEMPLATE_IDS.upperA, TEMPLATE_IDS.upperB]
+  const templateIds = [
+    TEMPLATE_IDS.pushA,
+    TEMPLATE_IDS.pullA,
+    TEMPLATE_IDS.legsA,
+    TEMPLATE_IDS.pushB,
+    TEMPLATE_IDS.pullB,
+    TEMPLATE_IDS.legsB,
+  ]
   const templates = await db.workoutTemplates.bulkGet(templateIds)
   const templatesById = new Map<string, WorkoutTemplate>()
   templates.forEach((t) => {
@@ -214,9 +222,8 @@ function buildStrengthSession(
           : DEMO_CONTEXT_IDS.rowPlate
         : null
 
-    // One plausible "ran long, dropped the optional exercise" example.
-    const skipped =
-      template.kind === 'lower' && tex.exerciseId === EX.hangingKneeRaise && week === 1
+    // One plausible "ran long, dropped the last exercise" example.
+    const skipped = tex.exerciseId === EX.pallofPress && week === 1
 
     const exerciseSessionId = `demo-es-${dateKey}-${tex.id}`
     const setLogs: SetLog[] = []
@@ -549,43 +556,33 @@ export async function loadDemoData(db: GymDB, today: DateKey): Promise<void> {
       updatedAt: daIso,
     })
 
-    // Strength sessions follow the seeded schedule.
-    if (weekday === 0) {
-      buildStrengthSession(out, lookups, TEMPLATE_IDS.lower, key, week, round1(weightFor(i)), rng)
-    } else if (weekday === 2) {
-      buildStrengthSession(out, lookups, TEMPLATE_IDS.upperA, key, week, round1(weightFor(i)), rng)
-    } else if (weekday === 4) {
-      buildStrengthSession(out, lookups, TEMPLATE_IDS.upperB, key, week, round1(weightFor(i)), rng)
+    // Strength sessions follow the seeded 6-day schedule (Sunday rest).
+    const templateForWeekday: Record<number, string | undefined> = {
+      1: TEMPLATE_IDS.pushA,
+      2: TEMPLATE_IDS.pullA,
+      3: TEMPLATE_IDS.legsA,
+      4: TEMPLATE_IDS.pushB,
+      5: TEMPLATE_IDS.pullB,
+      6: TEMPLATE_IDS.legsB,
+    }
+    const templateId = templateForWeekday[weekday]
+    if (templateId) {
+      buildStrengthSession(out, lookups, templateId, key, week, round1(weightFor(i)), rng)
     }
 
-    // Cardio: Wednesday Zone 2, Saturday light walk.
-    if (weekday === 3) {
-      const cIso = atMinutes(key, 19 * 60).toISOString()
+    // Morning cardio examples: Monday easy run (Z2), Wednesday bike (Z2),
+    // Friday tempo run (quality, not Z2). 20-minute slots.
+    if (weekday === 1 || weekday === 3 || weekday === 5) {
+      const cIso = atMinutes(key, 7 * 60).toISOString()
       out.cardioSessions.push({
         id: `demo-cardio-${key}`,
         dateKey: key,
-        type: 'inclineTreadmill',
-        minutes: 30 + Math.floor(rng() * 11),
-        distanceKm: null,
-        avgHeartRate: 128 + Math.floor(rng() * 12),
-        perceivedIntensity: 3,
-        isZone2: true,
-        isDemo: true,
-        createdAt: cIso,
-        updatedAt: cIso,
-      })
-    } else if (weekday === 6) {
-      const cIso = atMinutes(key, 10 * 60 + 30).toISOString()
-      const minutes = 40 + Math.floor(rng() * 21)
-      out.cardioSessions.push({
-        id: `demo-cardio-${key}`,
-        dateKey: key,
-        type: 'outdoorWalk',
-        minutes,
-        distanceKm: round1(minutes * 0.085),
-        avgHeartRate: null,
-        perceivedIntensity: 2,
-        isZone2: false,
+        type: weekday === 3 ? 'stationaryBike' : 'run',
+        minutes: 20,
+        distanceKm: weekday === 3 ? null : round1(2.6 + rng()),
+        avgHeartRate: weekday === 5 ? 158 + Math.floor(rng() * 8) : 132 + Math.floor(rng() * 8),
+        perceivedIntensity: weekday === 5 ? 4 : 2,
+        isZone2: weekday !== 5,
         isDemo: true,
         createdAt: cIso,
         updatedAt: cIso,
