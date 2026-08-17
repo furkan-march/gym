@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { db } from '../../../lib/db'
 import { addDaysKey, toDateKey } from '../../../lib/dates'
@@ -103,7 +103,11 @@ describe('ProgressScreen', () => {
     )
 
     expect(await screen.findByText('Consistency')).toBeInTheDocument()
-    expect(await screen.findAllByText('Not enough completed weeks yet')).toHaveLength(2)
+    // findAllByText resolves on the FIRST match; the two charts hydrate from
+    // separate live queries, so retry until both empty states are present.
+    await waitFor(() =>
+      expect(screen.getAllByText('Not enough completed weeks yet')).toHaveLength(2),
+    )
   })
 
   it('renders body-fat and weekly adherence charts once history exists', async () => {
