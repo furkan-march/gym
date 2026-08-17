@@ -154,4 +154,4 @@ export const BACKUP_TABLES = [
 ] as const
 
 export const BACKUP_SCHEMA_VERSION = 2
-export const APP_VERSION = '2.0.0'
+export const APP_VERSION = '2.1.0'
