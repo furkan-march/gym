@@ -135,8 +135,8 @@ describe('core loop integration (SPEC 35/36)', () => {
     const { session } = await startWorkout(upperA)
     expect(session.templateName).toBe('Push A')
     const days = await db.scheduledDays.toArray()
-    // Monday still points at Push A and Sunday stays rest — off-schedule starts change nothing.
-    expect(days.find((d) => d.weekday === 1)?.templateId).toBe(TEMPLATE_IDS.pushA)
+    // Monday still points at Pull A and Sunday stays rest — off-schedule starts change nothing.
+    expect(days.find((d) => d.weekday === 1)?.templateId).toBe(TEMPLATE_IDS.pullA)
     expect(days.find((d) => d.weekday === 0)?.planKind).toBe('rest')
   })
 

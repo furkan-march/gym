@@ -34,6 +34,10 @@ export const LEGACY_TEMPLATE_IDS = ['tpl-upper-a', 'tpl-upper-b', 'tpl-lower'] a
 export const EX = {
   benchPress: 'ex-bench-press',
   dbBenchPress: 'ex-db-bench-press',
+  pushUp: 'ex-push-up',
+  dbRow: 'ex-db-row',
+  cableChestPress: 'ex-cable-chest-press',
+  cableChestFly: 'ex-cable-chest-fly',
   smithSquat: 'ex-smith-squat',
   smithInclinePress: 'ex-smith-incline-press',
   dbRomanianDeadlift: 'ex-db-romanian-deadlift',
@@ -92,6 +96,10 @@ interface ExerciseSeed {
 const EXERCISES: ExerciseSeed[] = [
   { id: EX.benchPress, name: 'Bench Press', kind: 'weighted', incrementKg: 2.5 },
   { id: EX.dbBenchPress, name: 'Dumbbell Bench Press', kind: 'weighted', perDumbbell: true, incrementKg: 2 },
+  { id: EX.pushUp, name: 'Push-Up', kind: 'bodyweight', incrementKg: 2.5 },
+  { id: EX.dbRow, name: 'One-Arm Dumbbell Row', kind: 'weighted', unilateral: true, perDumbbell: true, incrementKg: 2 },
+  { id: EX.cableChestPress, name: 'Cable Chest Press', kind: 'weighted', incrementKg: 2.5 },
+  { id: EX.cableChestFly, name: 'Cable Chest Fly', kind: 'weighted', incrementKg: 2.5 },
   { id: EX.smithSquat, name: 'Smith Machine Squat', kind: 'weighted', incrementKg: 2.5 },
   { id: EX.smithInclinePress, name: 'Smith Incline Press', kind: 'weighted', incrementKg: 2.5 },
   { id: EX.dbRomanianDeadlift, name: 'Dumbbell Romanian Deadlift', kind: 'weighted', perDumbbell: true, incrementKg: 2 },
@@ -152,39 +160,49 @@ interface TexSeed {
 // Strength-skewed rep ranges (athletic density, not bulk); building-gym
 // equipment only. Kind mapping: push→'upperA', pull→'upperB', legs→'lower'
 // (drives warm-up lists, knee flows, and the Legs heading).
-const PUSH_A: TexSeed[] = [
-  { id: 'tex-pa-1', exerciseId: EX.dbBenchPress, sets: 3, repMin: 5, repMax: 7, rirMin: 2, rirMax: 2, rest: 150, alternatives: [EX.benchPress], ramp: [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }] },
-  { id: 'tex-pa-2', exerciseId: EX.overheadPress, sets: 2, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 120, defaultVariantId: OHP_VARIANTS.seatedDumbbell },
-  { id: 'tex-pa-3', exerciseId: EX.lateralRaise, sets: 2, repMin: 12, repMax: 15, rirMin: 1, rirMax: 2, rest: 60 },
+// REVISION 2026-08-18 (matched to how Furkan actually trains): antagonist-arm
+// split — triceps on Pull days, biceps on Push days; EVERY exercise is 2
+// working sets (add a 3rd via Plan when a lift stalls). Week order follows his
+// real rhythm: Mon Pull A, Tue Push A, Wed Legs A, Thu Pull B, Fri Push B,
+// Sat Legs B, Sun rest.
+const PULL_A: TexSeed[] = [
+  { id: 'tex-la-1', exerciseId: EX.pullUp, sets: 2, repMin: 5, repMax: 8, rirMin: 2, rirMax: 2, rest: 150, alternatives: [EX.latPulldown], ramp: [{ pct: 0, reps: 5 }] },
+  { id: 'tex-la-2', exerciseId: EX.dbRow, sets: 2, repMin: 8, repMax: 10, rirMin: 2, rirMax: 2, rest: 105, alternatives: [EX.cableRow, EX.chestSupportedRow] },
+  { id: 'tex-la-3', exerciseId: EX.ropePushdown, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 60, superset: 'la-s1' },
+  { id: 'tex-la-4', exerciseId: EX.lateralRaise, sets: 2, repMin: 12, repMax: 15, rirMin: 1, rirMax: 2, rest: 60, superset: 'la-s1' },
 ]
 
-const PULL_A: TexSeed[] = [
-  { id: 'tex-la-1', exerciseId: EX.pullUp, sets: 3, repMin: 5, repMax: 8, rirMin: 2, rirMax: 2, rest: 150, alternatives: [EX.latPulldown], ramp: [{ pct: 0, reps: 5 }] },
-  { id: 'tex-la-2', exerciseId: EX.cableRow, sets: 3, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 120, alternatives: [EX.chestSupportedRow] },
-  { id: 'tex-la-3', exerciseId: EX.facePull, sets: 2, repMin: 12, repMax: 15, rirMin: 2, rirMax: 2, rest: 60 },
+const PUSH_A: TexSeed[] = [
+  { id: 'tex-pa-1', exerciseId: EX.pushUp, sets: 2, repMin: 8, repMax: 15, rirMin: 2, rirMax: 2, rest: 90 },
+  { id: 'tex-pa-2', exerciseId: EX.overheadPress, sets: 2, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 120, defaultVariantId: OHP_VARIANTS.seatedDumbbell },
+  { id: 'tex-pa-3', exerciseId: EX.cableChestPress, sets: 2, repMin: 8, repMax: 10, rirMin: 2, rirMax: 2, rest: 105, alternatives: [EX.cableChestFly, EX.dbBenchPress] },
+  { id: 'tex-pa-4', exerciseId: EX.dumbbellCurl, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 60, superset: 'pa-s1' },
+  { id: 'tex-pa-5', exerciseId: EX.lateralRaise, sets: 2, repMin: 12, repMax: 15, rirMin: 1, rirMax: 2, rest: 60, superset: 'pa-s1' },
 ]
 
 const LEGS_A: TexSeed[] = [
-  { id: 'tex-ga-1', exerciseId: EX.smithSquat, sets: 3, repMin: 5, repMax: 7, rirMin: 2, rirMax: 2, rest: 180, alternatives: [EX.gobletSquat, EX.squat, EX.boxSquat], ramp: [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }] },
-  { id: 'tex-ga-2', exerciseId: EX.dbRomanianDeadlift, sets: 3, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 150, alternatives: [EX.romanianDeadlift], ramp: [{ pct: 0.6, reps: 6 }] },
+  { id: 'tex-ga-1', exerciseId: EX.smithSquat, sets: 2, repMin: 5, repMax: 7, rirMin: 2, rirMax: 2, rest: 180, alternatives: [EX.gobletSquat, EX.squat, EX.boxSquat], ramp: [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }] },
+  { id: 'tex-ga-2', exerciseId: EX.dbRomanianDeadlift, sets: 2, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 150, alternatives: [EX.romanianDeadlift], ramp: [{ pct: 0.6, reps: 6 }] },
   { id: 'tex-ga-3', exerciseId: EX.standingCalfRaise, sets: 2, repMin: 10, repMax: 15, rirMin: 1, rirMax: 2, rest: 60 },
 ]
 
-const PUSH_B: TexSeed[] = [
-  { id: 'tex-pb-1', exerciseId: EX.smithInclinePress, sets: 3, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 150, alternatives: [EX.weightedDip, EX.inclineDbPress], ramp: [{ pct: 0.5, reps: 8 }, { pct: 0.75, reps: 4 }] },
-  { id: 'tex-pb-2', exerciseId: EX.ropePushdown, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 60, superset: 'pb-s1' },
-  { id: 'tex-pb-3', exerciseId: EX.lateralRaise, sets: 2, repMin: 12, repMax: 15, rirMin: 1, rirMax: 2, rest: 60, superset: 'pb-s1' },
+const PULL_B: TexSeed[] = [
+  { id: 'tex-lb-1', exerciseId: EX.latPulldown, sets: 2, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 120 },
+  { id: 'tex-lb-2', exerciseId: EX.chestSupportedRow, sets: 2, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 120, alternatives: [EX.cableRow] },
+  { id: 'tex-lb-3', exerciseId: EX.facePull, sets: 2, repMin: 12, repMax: 15, rirMin: 2, rirMax: 2, rest: 60, superset: 'lb-s1' },
+  { id: 'tex-lb-4', exerciseId: EX.overheadRopeExt, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 60, superset: 'lb-s1' },
 ]
 
-const PULL_B: TexSeed[] = [
-  { id: 'tex-lb-1', exerciseId: EX.latPulldown, sets: 3, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 120 },
-  { id: 'tex-lb-2', exerciseId: EX.chestSupportedRow, sets: 3, repMin: 6, repMax: 8, rirMin: 2, rirMax: 2, rest: 120, alternatives: [EX.cableRow] },
-  { id: 'tex-lb-3', exerciseId: EX.dumbbellCurl, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 60 },
+const PUSH_B: TexSeed[] = [
+  { id: 'tex-pb-1', exerciseId: EX.dbBenchPress, sets: 2, repMin: 5, repMax: 7, rirMin: 2, rirMax: 2, rest: 150, alternatives: [EX.smithInclinePress, EX.weightedDip], ramp: [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }] },
+  { id: 'tex-pb-2', exerciseId: EX.cableChestFly, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 75, alternatives: [EX.smithInclinePress] },
+  { id: 'tex-pb-3', exerciseId: EX.hammerCurl, sets: 2, repMin: 10, repMax: 12, rirMin: 1, rirMax: 2, rest: 60, superset: 'pb-s1' },
+  { id: 'tex-pb-4', exerciseId: EX.lateralRaise, sets: 2, repMin: 12, repMax: 15, rirMin: 1, rirMax: 2, rest: 60, superset: 'pb-s1' },
 ]
 
 const LEGS_B: TexSeed[] = [
   { id: 'tex-gb-1', exerciseId: EX.bulgarianSplitSquat, sets: 2, repMin: 8, repMax: 10, rirMin: 2, rirMax: 3, rest: 105, alternatives: [EX.reverseLunge, EX.stepUp] },
-  { id: 'tex-gb-2', exerciseId: EX.hipThrust, sets: 3, repMin: 8, repMax: 10, rirMin: 2, rirMax: 2, rest: 120, alternatives: [EX.dbLegCurl] },
+  { id: 'tex-gb-2', exerciseId: EX.hipThrust, sets: 2, repMin: 8, repMax: 10, rirMin: 2, rirMax: 2, rest: 120, alternatives: [EX.dbLegCurl] },
   { id: 'tex-gb-3', exerciseId: EX.pallofPress, sets: 2, repMin: 10, repMax: 12, rirMin: 2, rirMax: 2, rest: 45, alternatives: [EX.hangingKneeRaise, EX.lyingLegRaise] },
 ]
 
@@ -299,11 +317,11 @@ export function buildDefaultProgram(t: string = nowIso()): {
   const cardio = { cardioMinutesMin: 20, cardioMinutesMax: 20 }
   const scheduledDays: ScheduledDay[] = [
     day(0, 'rest', { stepsOptional: true, postureOptional: true }),
-    day(1, 'strength', { templateId: TEMPLATE_IDS.pushA, postureRequired: true, ...cardio }),
-    day(2, 'strength', { templateId: TEMPLATE_IDS.pullA, ...cardio }),
+    day(1, 'strength', { templateId: TEMPLATE_IDS.pullA, postureRequired: true, ...cardio }),
+    day(2, 'strength', { templateId: TEMPLATE_IDS.pushA, ...cardio }),
     day(3, 'strength', { templateId: TEMPLATE_IDS.legsA, ...cardio }),
-    day(4, 'strength', { templateId: TEMPLATE_IDS.pushB, ...cardio }),
-    day(5, 'strength', { templateId: TEMPLATE_IDS.pullB, postureRequired: true, ...cardio }),
+    day(4, 'strength', { templateId: TEMPLATE_IDS.pullB, ...cardio }),
+    day(5, 'strength', { templateId: TEMPLATE_IDS.pushB, postureRequired: true, ...cardio }),
     day(6, 'strength', { templateId: TEMPLATE_IDS.legsB, ...cardio }),
   ]
 

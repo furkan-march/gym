@@ -110,6 +110,9 @@ const LOADS: Record<string, readonly [number, number, number, number]> = {
   [EX.dbLegCurl]: [12, 12, 14, 14],
   [EX.cableRow]: [50, 52.5, 52.5, 55],
   [EX.hipThrust]: [40, 42.5, 45, 45],
+  [EX.dbRow]: [22, 24, 24, 26], // per dumbbell, per side
+  [EX.cableChestPress]: [30, 32.5, 32.5, 35],
+  [EX.cableChestFly]: [15, 15, 17.5, 17.5],
   [EX.bulgarianSplitSquat]: [10, 10, 12, 12], // per dumbbell, per side
   [EX.legCurl]: [35, 37.5, 37.5, 40],
   [EX.standingCalfRaise]: [50, 50, 55, 55],
@@ -134,6 +137,14 @@ const PULLUP_REPS: readonly (readonly number[])[] = [
   [8, 8, 7, 7],
   [9, 8, 8, 7],
   [9, 9, 8, 8],
+]
+
+/** Bodyweight push-up rep progression across the 2 working sets. */
+const PUSHUP_REPS: readonly (readonly number[])[] = [
+  [12, 10],
+  [13, 11],
+  [14, 12],
+  [15, 13],
 ]
 
 interface DemoBatch {
@@ -309,6 +320,7 @@ function buildStrengthSession(
       const repsForSet = (setIdx: number): number => {
         if (tex.exerciseId === EX.overheadPress) return pick(pick(OHP_REPS, week), setIdx)
         if (tex.exerciseId === EX.pullUp) return pick(pick(PULLUP_REPS, week), setIdx)
+        if (tex.exerciseId === EX.pushUp) return pick(pick(PUSHUP_REPS, week), setIdx)
         if (isRepsOnly) return Math.min(tex.repRangeMax, tex.repRangeMin + week)
         const drop = setIdx >= 2 && rng() < 0.4 ? 1 : 0
         return Math.max(tex.repRangeMin, tex.repRangeMax - drop)
@@ -558,11 +570,11 @@ export async function loadDemoData(db: GymDB, today: DateKey): Promise<void> {
 
     // Strength sessions follow the seeded 6-day schedule (Sunday rest).
     const templateForWeekday: Record<number, string | undefined> = {
-      1: TEMPLATE_IDS.pushA,
-      2: TEMPLATE_IDS.pullA,
+      1: TEMPLATE_IDS.pullA,
+      2: TEMPLATE_IDS.pushA,
       3: TEMPLATE_IDS.legsA,
-      4: TEMPLATE_IDS.pushB,
-      5: TEMPLATE_IDS.pullB,
+      4: TEMPLATE_IDS.pullB,
+      5: TEMPLATE_IDS.pushB,
       6: TEMPLATE_IDS.legsB,
     }
     const templateId = templateForWeekday[weekday]

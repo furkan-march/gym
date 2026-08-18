@@ -24,26 +24,24 @@ describe('ActiveWorkoutScreen', () => {
       </MemoryRouter>,
     )
 
-    // Dumbbell Bench Press is first with incomplete sets → auto-expanded card.
-    const bench = await screen.findAllByText('Dumbbell Bench Press')
+    // Push-Up is first with incomplete sets → auto-expanded card.
+    const bench = await screen.findAllByText('Push-Up')
     expect(bench.length).toBeGreaterThan(0)
     // Other template exercises render collapsed.
     expect(await screen.findByText('Lateral Raise')).toBeInTheDocument()
 
-    // First session: no history → hint shown, no ramp rows (load unknown),
-    // exactly the 4 prescribed working rows are created lazily.
+    // First session: no history → hint shown; exactly the 2 prescribed
+    // working rows are created lazily.
     expect(await screen.findByText(/No history yet/)).toBeInTheDocument()
-    // Row creation is sequential; wait until all four rows exist.
     await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: 'Complete set' })).toHaveLength(3)
+      expect(screen.getAllByRole('button', { name: 'Complete set' })).toHaveLength(2)
     })
     const checks = screen.getAllByRole('button', { name: 'Complete set' })
 
-    // Required fields guard (SPEC 11): the check is disabled while load and
-    // reps are empty on a first-session weighted exercise.
+    // Required fields guard (SPEC 11): Push-Up is bodyweight, so only reps
+    // are required — the check stays disabled until they are entered.
     expect(checks[0]!).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('set 1 load'), { target: { value: '60' } })
-    fireEvent.change(screen.getByLabelText('set 1 reps'), { target: { value: '8' } })
+    fireEvent.change(screen.getByLabelText('set 1 reps'), { target: { value: '12' } })
     await waitFor(() => expect(checks[0]!).toBeEnabled())
 
     // One tap on the check completes the set…
@@ -66,7 +64,7 @@ describe('ActiveWorkoutScreen', () => {
       await screen.findByRole('button', { name: 'Add 30 seconds' }),
     ).toBeInTheDocument()
 
-    // …and the sticky bar reflects progress (Push A = 7 working sets).
-    expect(await screen.findByText(/1 done · 6 left/)).toBeInTheDocument()
+    // …and the sticky bar reflects progress (Push A = 10 working sets).
+    expect(await screen.findByText(/1 done · 9 left/)).toBeInTheDocument()
   })
 })

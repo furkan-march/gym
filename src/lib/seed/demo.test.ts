@@ -38,14 +38,14 @@ describe('loadDemoData', () => {
       expect(s.dateKey >= addDaysKey(TODAY, -28)).toBe(true)
       expect(s.status).toBe('completed')
       const weekday = weekdayOfKey(s.dateKey)
-      if (weekday === 1 || weekday === 4) expect(s.templateKind).toBe('upperA') // Push
-      if (weekday === 2 || weekday === 5) expect(s.templateKind).toBe('upperB') // Pull
+      if (weekday === 1 || weekday === 4) expect(s.templateKind).toBe('upperB') // Pull
+      if (weekday === 2 || weekday === 5) expect(s.templateKind).toBe('upperA') // Push
       if (weekday === 3 || weekday === 6) expect(s.templateKind).toBe('lower') // Legs
       expect([1, 2, 3, 4, 5, 6]).toContain(weekday)
     }
     // Full prescription snapshots on every exercise session.
     const exSessions = await db.exerciseSessions.toArray()
-    expect(exSessions).toHaveLength(24 * 3) // 3 exercises per 30-minute block
+    expect(exSessions).toHaveLength(92) // (4+5+3+4+4+3) exercises per week x 4 weeks
     for (const es of exSessions) {
       expect(es.prescription.prescribedSets).toBeGreaterThan(0)
       expect(es.prescription.incrementKg).toBeGreaterThanOrEqual(0)
@@ -284,7 +284,7 @@ describe('clearDemoData', () => {
     // Seeded (non-demo) library and plan survive.
     expect(await db.exercises.count()).toBeGreaterThan(30)
     expect(await db.workoutTemplates.count()).toBe(6)
-    expect(await db.templateExercises.count()).toBe(18) // 6 templates x 3 exercises
+    expect(await db.templateExercises.count()).toBe(23) // 4+5+3+4+4+3 across the six templates
     expect(await db.userProfile.get('profile')).toBeDefined()
   })
 
